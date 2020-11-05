@@ -1,0 +1,27 @@
+name: CI Notifications Post-to-Slack function Invoker
+description: function invoker
+inputs:
+    status:
+        description: Status of PR Check(success / failure)
+        required: true
+    failure_step:
+        description: Step Name of Failure caused(need if status is failure)
+        required: false
+    begintime:
+        description: Beginning time of checks execution
+        required: true
+    head_sha:
+        description: Merge HEAD branch SHA
+        required: true
+    base_sha:
+        description: Merge BASE branch SHA
+        required: true
+    pr_number:
+        description: PullRequest Number(need if it is from pull request)
+        requried: false
+    pr_title:
+        description: PullRequest Title(need if it is from pull request)
+        required: false
+runs:
+    using: docker
+    image: Dockerfile
