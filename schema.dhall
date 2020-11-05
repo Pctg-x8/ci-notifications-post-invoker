@@ -22,7 +22,7 @@ let ExecEnv =
     }
 let step = \(params: Params) -> \(env: ExecEnv) -> GithubActions.Step::{
     , name = "Notify"
-    , uses = Some "./.github/actions/integrity-check-slack-notifier"
+    , uses = Some "Pctg-x8/ci-notifications-post-invoker@master"
     , env = Some (toMap env)
     , `with` = Some (decomposeStatus params.status # toMap {
         , begintime = params.begintime
