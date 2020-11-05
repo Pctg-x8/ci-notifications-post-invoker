@@ -12,9 +12,9 @@ Merge HEAD branch SHA
 ### base_sha
 Merge BASE branch SHA
 ### pr_number
-PullRequest Number(need if it is from pull request)
+PullRequest Number
 ### pr_title
-PullRequest Title(need if it is from pull request)
+PullRequest Title
 
 ## Environment Parameters
 

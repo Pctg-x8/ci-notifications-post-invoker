@@ -17,11 +17,11 @@ inputs:
         description: Merge BASE branch SHA
         required: true
     pr_number:
-        description: PullRequest Number(need if it is from pull request)
-        requried: false
+        description: PullRequest Number
+        requried: true
     pr_title:
-        description: PullRequest Title(need if it is from pull request)
-        required: false
+        description: PullRequest Title
+        required: true
 runs:
     using: docker
     image: Dockerfile
