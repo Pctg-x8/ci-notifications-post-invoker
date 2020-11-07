@@ -65,7 +65,7 @@ getCommitInfo(inputHeadSha).then(cinfo => {
         pr_name: core.getInput("pr_title"),
         commit: cinfo
     };
-    new Lambda().invoke({
+    new Lambda({ region: process.env.AWS_DEFAULT_REGION }).invoke({
         FunctionName: "CIResultNotificationGHA",
         Payload: JSON.stringify(payload),
         InvocationType: "Event"
