@@ -99,4 +99,6 @@ getCommitInfo(inputHeadSha).then(function (cinfo) {
         else
             console.log("Invocation OK", data);
     });
+    if (status == "failure")
+        process.exit(1);
 });

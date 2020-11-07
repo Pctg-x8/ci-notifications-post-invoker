@@ -73,4 +73,6 @@ getCommitInfo(inputHeadSha).then(cinfo => {
         if (e) console.error("Invocation Failed!", e, e.stack);
         else console.log("Invocation OK", data);
     });
+
+    if (status == "failure") process.exit(1);
 })
