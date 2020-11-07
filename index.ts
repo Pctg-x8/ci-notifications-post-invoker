@@ -32,9 +32,10 @@ const endTime = Math.floor((new Date()).getTime() / 1000);
 const input = {
     beginTime: Number(core.getInput("begintime")),
     status: core.getInput("status"),
-    headSha: core.getInput("head_sha"),
-    baseSha: core.getInput("base_sha"),
-    reportName: core.getInput("report_name")
+    headSha: core.getInput("head_sha", { required: false }),
+    baseSha: core.getInput("base_sha", { required: false }),
+    reportName: core.getInput("report_name"),
+    mode: core.getInput("mode")
 };
 const { owner: repoOwner, repo: repoName } = github.context.repo;
 
@@ -58,29 +59,37 @@ type LambdaPayloadDiff = {
 type LambdaPayloadBranch = {
     readonly branch_name: string;
 } & LambdaPayloadCommon;
+type LambdaPayload = LambdaPayloadDiff | LambdaPayloadBranch;
 
-getCommitInfo(input.headSha).then(cinfo => {
-    const commonPayload: LambdaPayloadCommon = {
+async function run() {
+    const commonPayload: Omit<LambdaPayloadCommon, "commit"> = {
         status: input.status,
         failure_step: input.status == "failure" ? core.getInput("failure_step") : undefined,
         build_url: `https://github.com/${repoOwner}/${repoName}/actions/runs/${github.context.runId}`,
         number: github.context.runNumber,
         duration: endTime - input.beginTime,
         repository: [repoOwner, repoName].join("/"),
-        commit: cinfo,
         report_name: input.reportName
     };
-    const payload = core.getInput("mode") == "diff" ? {
-        compare_url: `https://github.com/${repoOwner}/${repoName}/compare/${input.baseSha}..${input.headSha}`,
-        commit_hash: input.headSha,
-        ref: process.env.GITHUB_HEAD_REF,
-        pr_number: Number(core.getInput("pr_number")),
-        pr_name: core.getInput("pr_title"),
-        ... commonPayload
-    } : {
-        branch_name: github.context.ref,
-        ... commonPayload
-    };
+
+    let payload: LambdaPayload;
+    if (input.mode == "diff") {
+        payload = await getCommitInfo(input.headSha).then<LambdaPayloadDiff>(cinfo => ({
+            compare_url: `https://github.com/${repoOwner}/${repoName}/compare/${input.baseSha}..${input.headSha}`,
+            commit_hash: input.headSha,
+            ref: process.env.GITHUB_HEAD_REF,
+            pr_number: Number(core.getInput("pr_number")),
+            pr_name: core.getInput("pr_title"),
+            commit: cinfo,
+            ... commonPayload
+        }));
+    } else {
+        payload = await getCommitInfo(github.context.sha).then<LambdaPayloadBranch>(cinfo => ({
+            branch_name: github.context.ref,
+            commit: cinfo,
+            ... commonPayload
+        }));
+    }
 
     new Lambda({ region: process.env.AWS_DEFAULT_REGION }).invoke({
         FunctionName: "CIResultNotificationGHA",
@@ -90,4 +99,6 @@ getCommitInfo(input.headSha).then(cinfo => {
         if (e) console.error("Invocation Failed!", e, e.stack);
         else console.log("Invocation OK", data);
     });
-})
+}
+
+run();

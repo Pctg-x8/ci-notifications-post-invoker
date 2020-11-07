@@ -83,31 +83,50 @@ var endTime = Math.floor((new Date()).getTime() / 1000);
 var input = {
     beginTime: Number(core.getInput("begintime")),
     status: core.getInput("status"),
-    headSha: core.getInput("head_sha"),
-    baseSha: core.getInput("base_sha"),
-    reportName: core.getInput("report_name")
+    headSha: core.getInput("head_sha", { required: false }),
+    baseSha: core.getInput("base_sha", { required: false }),
+    reportName: core.getInput("report_name"),
+    mode: core.getInput("mode")
 };
 var _a = github.context.repo, repoOwner = _a.owner, repoName = _a.repo;
-getCommitInfo(input.headSha).then(function (cinfo) {
-    var commonPayload = {
-        status: input.status,
-        failure_step: input.status == "failure" ? core.getInput("failure_step") : undefined,
-        build_url: "https://github.com/" + repoOwner + "/" + repoName + "/actions/runs/" + github.context.runId,
-        number: github.context.runNumber,
-        duration: endTime - input.beginTime,
-        repository: [repoOwner, repoName].join("/"),
-        commit: cinfo,
-        report_name: input.reportName
-    };
-    var payload = core.getInput("mode") == "diff" ? __assign({ compare_url: "https://github.com/" + repoOwner + "/" + repoName + "/compare/" + input.baseSha + ".." + input.headSha, commit_hash: input.headSha, ref: process.env.GITHUB_HEAD_REF, pr_number: Number(core.getInput("pr_number")), pr_name: core.getInput("pr_title") }, commonPayload) : __assign({ branch_name: github.context.ref }, commonPayload);
-    new Lambda({ region: process.env.AWS_DEFAULT_REGION }).invoke({
-        FunctionName: "CIResultNotificationGHA",
-        Payload: JSON.stringify(payload),
-        InvocationType: "Event"
-    }, function (e, data) {
-        if (e)
-            console.error("Invocation Failed!", e, e.stack);
-        else
-            console.log("Invocation OK", data);
+function run() {
+    return __awaiter(this, void 0, void 0, function () {
+        var commonPayload, payload;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    commonPayload = {
+                        status: input.status,
+                        failure_step: input.status == "failure" ? core.getInput("failure_step") : undefined,
+                        build_url: "https://github.com/" + repoOwner + "/" + repoName + "/actions/runs/" + github.context.runId,
+                        number: github.context.runNumber,
+                        duration: endTime - input.beginTime,
+                        repository: [repoOwner, repoName].join("/"),
+                        report_name: input.reportName
+                    };
+                    if (!(input.mode == "diff")) return [3 /*break*/, 2];
+                    return [4 /*yield*/, getCommitInfo(input.headSha).then(function (cinfo) { return (__assign({ compare_url: "https://github.com/" + repoOwner + "/" + repoName + "/compare/" + input.baseSha + ".." + input.headSha, commit_hash: input.headSha, ref: process.env.GITHUB_HEAD_REF, pr_number: Number(core.getInput("pr_number")), pr_name: core.getInput("pr_title"), commit: cinfo }, commonPayload)); })];
+                case 1:
+                    payload = _a.sent();
+                    return [3 /*break*/, 4];
+                case 2: return [4 /*yield*/, getCommitInfo(github.context.sha).then(function (cinfo) { return (__assign({ branch_name: github.context.ref, commit: cinfo }, commonPayload)); })];
+                case 3:
+                    payload = _a.sent();
+                    _a.label = 4;
+                case 4:
+                    new Lambda({ region: process.env.AWS_DEFAULT_REGION }).invoke({
+                        FunctionName: "CIResultNotificationGHA",
+                        Payload: JSON.stringify(payload),
+                        InvocationType: "Event"
+                    }, function (e, data) {
+                        if (e)
+                            console.error("Invocation Failed!", e, e.stack);
+                        else
+                            console.log("Invocation OK", data);
+                    });
+                    return [2 /*return*/];
+            }
+        });
     });
-});
+}
+run();

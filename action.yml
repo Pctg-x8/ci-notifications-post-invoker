@@ -12,16 +12,16 @@ inputs:
         required: true
     head_sha:
         description: Merge HEAD branch SHA
-        required: true
+        required: false
     base_sha:
         description: Merge BASE branch SHA
-        required: true
+        required: false
     pr_number:
         description: PullRequest Number
-        requried: true
+        requried: false
     pr_title:
         description: PullRequest Title
-        required: true
+        required: false
     mode:
         description: Report Mode(diff or branch)
         required: true
