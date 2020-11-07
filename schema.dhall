@@ -7,13 +7,24 @@ let decomposeStatus =
         , Failure = \(stepName: Text) -> toMap { status = "failure", failure_step = stepName }
         }
     in \(status: Status) -> merge handler status
+let DiffModeParams =
+    { head_sha : Text
+    , base_sha : Text
+    , pr_number: Text
+    , pr_title : Text
+    }
+let Mode = < Diff : DiffModeParams | Branch >
+let decomposeMode =
+    let handler =
+        { Diff = \(params : DiffModeParams) -> toMap { mode = "diff" } # toMap params
+        , Branch = toMap { mode = "branch" }
+        }
+    in \(mode : Mode) -> merge handler mode
 let Params =
     { status : Status
     , begintime : Text
-    , head_sha : Text
-    , base_sha : Text
-    , pr_number : Text
-    , pr_title : Text
+    , report_name : Text
+    , mode : Mode
     }
 let ExecEnv =
     { AWS_ACCESS_KEY_ID : Text
@@ -24,12 +35,9 @@ let step = \(params: Params) -> \(env: ExecEnv) -> GithubActions.Step::{
     , name = "Notify"
     , uses = Some "Pctg-x8/ci-notifications-post-invoker@master"
     , env = Some (toMap env)
-    , `with` = Some (decomposeStatus params.status # toMap {
+    , `with` = Some (decomposeStatus params.status # decomposeMode params.mode # toMap {
         , begintime = params.begintime
-        , head_sha = params.head_sha
-        , base_sha = params.base_sha
-        , pr_number = params.pr_number
-        , pr_title = params.pr_title
+        , report_name = params.report_name
         })
     }
 

@@ -7,14 +7,18 @@ CI Notification Post-to-Slack function Invoker
 Status of PR Check(success / failure with failure_step name)
 ### begintime
 Beginning time of checks execution
-### head_sha
+### head_sha (effective only mode=diff)
 Merge HEAD branch SHA
-### base_sha
+### base_sha (effective only mode=diff)
 Merge BASE branch SHA
-### pr_number
+### pr_number (effective only mode=diff)
 PullRequest Number
-### pr_title
+### pr_title (effective only mode=diff)
 PullRequest Title
+### mode
+diff or branch
+### reporter_name
+Name of Reporter
 
 ## Environment Parameters
 

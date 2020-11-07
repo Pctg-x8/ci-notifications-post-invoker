@@ -22,6 +22,12 @@ inputs:
     pr_title:
         description: PullRequest Title
         required: true
+    mode:
+        description: Report Mode(diff or branch)
+        required: true
+    report_name:
+        description: Name of Reporter
+        required: true
 runs:
     using: node12
     main: index.js
