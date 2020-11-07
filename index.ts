@@ -18,7 +18,7 @@ async function getCommitInfo(head: string): Promise<CommitInfo> {
         }
     });
     if (exitCode != 0) throw new Error(`git log exited with code ${exitCode}`);
-    const [committerName, commitMessage] = outputStrings.split("\t", 2);
+    const [committerName, commitMessage] = outputStrings.trimEnd().split("\t", 2);
     
     return {
         committer: committerName,

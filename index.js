@@ -58,7 +58,7 @@ function getCommitInfo(head) {
                     exitCode = _b.sent();
                     if (exitCode != 0)
                         throw new Error("git log exited with code " + exitCode);
-                    _a = outputStrings.split("\t", 2), committerName = _a[0], commitMessage = _a[1];
+                    _a = outputStrings.trimEnd().split("\t", 2), committerName = _a[0], commitMessage = _a[1];
                     return [2 /*return*/, {
                             committer: committerName,
                             message: commitMessage,
