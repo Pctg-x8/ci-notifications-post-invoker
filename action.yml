@@ -23,5 +23,5 @@ inputs:
         description: PullRequest Title
         required: true
 runs:
-    using: docker
-    image: Dockerfile
+    using: node12
+    main: index.js

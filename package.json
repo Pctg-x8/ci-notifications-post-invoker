@@ -1,0 +1,22 @@
+{
+  "name": "ci-notifications-post-invoker",
+  "version": "1.0.0",
+  "description": "CI Notification Post-to-Slack function Invoker",
+  "main": "index.ts",
+  "repository": "https://github.com/Pctg-x8/ci-notifications-post-invoker",
+  "author": "S.Percentage <Syn.Tri.Naga@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^14.14.6",
+    "typescript": "^4.0.5"
+  },
+  "dependencies": {
+    "@actions/core": "^1.2.6",
+    "@actions/exec": "^1.0.4",
+    "@actions/github": "^4.0.0",
+    "aws-sdk": "^2.787.0"
+  },
+  "scripts": {
+    "build": "yarn tsc index.ts"
+  }
+}
