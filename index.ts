@@ -85,7 +85,7 @@ async function run() {
         }));
     } else {
         payload = await getCommitInfo(github.context.sha).then<LambdaPayloadBranch>(cinfo => ({
-            branch_name: github.context.ref,
+            branch_name: github.context.ref.replace(/^refs\/heads\//, ""),
             commit: cinfo,
             ... commonPayload
         }));

@@ -109,7 +109,7 @@ function run() {
                 case 1:
                     payload = _a.sent();
                     return [3 /*break*/, 4];
-                case 2: return [4 /*yield*/, getCommitInfo(github.context.sha).then(function (cinfo) { return (__assign({ branch_name: github.context.ref, commit: cinfo }, commonPayload)); })];
+                case 2: return [4 /*yield*/, getCommitInfo(github.context.sha).then(function (cinfo) { return (__assign({ branch_name: github.context.ref.replace(/^refs\/heads\//, ""), commit: cinfo }, commonPayload)); })];
                 case 3:
                     payload = _a.sent();
                     _a.label = 4;
