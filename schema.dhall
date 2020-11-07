@@ -41,4 +41,4 @@ let step = \(params: Params) -> \(env: ExecEnv) -> GithubActions.Step::{
         })
     }
 
-in { Status, Params, ExecEnv, step }
+in { Status, Params, ExecEnv, step, Mode }
