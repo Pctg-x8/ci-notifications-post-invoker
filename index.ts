@@ -42,7 +42,6 @@ const { owner: repoOwner, repo: repoName } = github.context.repo;
 type LambdaPayloadCommon = {
     readonly status: string;
     readonly failure_step?: string;
-    readonly failure_run_id?: string;
     readonly build_url: string;
     readonly number: number;
     readonly duration: number;
@@ -66,7 +65,6 @@ async function run() {
     const commonPayload: Omit<LambdaPayloadCommon, "commit"> = {
         status: input.status,
         failure_step: input.status == "failure" ? core.getInput("failure_step") : undefined,
-        failure_run_id: input.status == "failure" ? github.context.runId.toString() : undefined,
         build_url: `https://github.com/${repoOwner}/${repoName}/actions/runs/${github.context.runId}`,
         number: github.context.runNumber,
         duration: endTime - input.beginTime,
