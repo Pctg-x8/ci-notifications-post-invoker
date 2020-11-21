@@ -35,7 +35,8 @@ const input = {
     headSha: core.getInput("head_sha", { required: false }),
     baseSha: core.getInput("base_sha", { required: false }),
     reportName: core.getInput("report_name"),
-    mode: core.getInput("mode")
+    mode: core.getInput("mode"),
+    supportInfo: core.getInput("support_info", { required: false })
 };
 const { owner: repoOwner, repo: repoName } = github.context.repo;
 
@@ -48,6 +49,7 @@ type LambdaPayloadCommon = {
     readonly repository: string;
     readonly commit: CommitInfo;
     readonly report_name: string;
+    readonly support_info?: string;
 };
 type LambdaPayloadDiff = {
     readonly compare_url: string;
@@ -69,7 +71,8 @@ async function run() {
         number: github.context.runNumber,
         duration: endTime - input.beginTime,
         repository: [repoOwner, repoName].join("/"),
-        report_name: input.reportName
+        report_name: input.reportName,
+        support_info: input.supportInfo
     };
 
     let payload: LambdaPayload;

@@ -86,7 +86,8 @@ var input = {
     headSha: core.getInput("head_sha", { required: false }),
     baseSha: core.getInput("base_sha", { required: false }),
     reportName: core.getInput("report_name"),
-    mode: core.getInput("mode")
+    mode: core.getInput("mode"),
+    supportInfo: core.getInput("support_info", { required: false })
 };
 var _a = github.context.repo, repoOwner = _a.owner, repoName = _a.repo;
 function run() {
@@ -102,7 +103,8 @@ function run() {
                         number: github.context.runNumber,
                         duration: endTime - input.beginTime,
                         repository: [repoOwner, repoName].join("/"),
-                        report_name: input.reportName
+                        report_name: input.reportName,
+                        support_info: input.supportInfo
                     };
                     if (!(input.mode == "diff")) return [3 /*break*/, 2];
                     return [4 /*yield*/, getCommitInfo(input.headSha).then(function (cinfo) { return (__assign({ compare_url: "https://github.com/" + repoOwner + "/" + repoName + "/compare/" + input.baseSha + ".." + input.headSha, commit_hash: input.headSha, ref: process.env.GITHUB_HEAD_REF, pr_number: Number(core.getInput("pr_number")), pr_name: core.getInput("pr_title"), commit: cinfo }, commonPayload)); })];
