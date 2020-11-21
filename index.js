@@ -51,7 +51,7 @@ var core = require("@actions/core");
 var exec_1 = require("@actions/exec");
 var github = require("@actions/github");
 var Lambda = require("aws-sdk/clients/lambda");
-var fs = require("fs/promises");
+var fs = require("fs");
 var path = require("path");
 function getCommitInfo(head) {
     return __awaiter(this, void 0, void 0, function () {
@@ -93,15 +93,27 @@ var input = {
 var _a = github.context.repo, repoOwner = _a.owner, repoName = _a.repo;
 var rawbuildlogPath = path.join(process.env["GITHUB_WORKSPACE"], ".rawbuildlog");
 var buildlogPath = path.join(process.env["GITHUB_WORKSPACE"], ".buildlog");
-var rawbuildlogLoader = fs.readFile(rawbuildlogPath, "utf-8")["catch"](function (e) {
-    if (e.code === "ENOENT")
-        return null;
-    throw e;
+var rawbuildlogLoader = new Promise(function (resv, rej) {
+    fs.readFile(rawbuildlogPath, "utf-8", function (e, s) {
+        if (e)
+            if (e.code === "ENOENT")
+                resv(null);
+            else
+                rej(e);
+        else
+            resv(s);
+    });
 });
-var buildlogLoader = fs.readFile(buildlogPath, "utf-8")["catch"](function (e) {
-    if (e.code == "ENOENT")
-        return null;
-    throw e;
+var buildlogLoader = new Promise(function (resv, rej) {
+    fs.readFile(buildlogPath, "utf-8", function (e, s) {
+        if (e)
+            if (e.code === "ENOENT")
+                resv(null);
+            else
+                rej(e);
+        else
+            resv(s);
+    });
 });
 var BUILDLOG_MAX_AVAILABLE_LINES = 10;
 function run() {

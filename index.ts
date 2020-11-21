@@ -2,8 +2,7 @@ import * as core from "@actions/core";
 import { exec } from "@actions/exec";
 import * as github from "@actions/github";
 import * as Lambda from "aws-sdk/clients/lambda";
-import * as fs from "fs/promises";
-import { constants } from "fs";
+import * as fs from "fs";
 import * as path from "path";
 
 type CommitInfo = {
@@ -43,16 +42,18 @@ const input = {
 const { owner: repoOwner, repo: repoName } = github.context.repo;
 const rawbuildlogPath = path.join(process.env["GITHUB_WORKSPACE"], ".rawbuildlog");
 const buildlogPath = path.join(process.env["GITHUB_WORKSPACE"], ".buildlog");
-const rawbuildlogLoader: Promise<string | null> = fs.readFile(rawbuildlogPath, "utf-8")
-    .catch(e => {
-        if (e.code === "ENOENT") return null;
-        throw e;
+const rawbuildlogLoader: Promise<string | null> = new Promise((resv, rej) => {
+    fs.readFile(rawbuildlogPath, "utf-8", (e, s) => {
+        if (e) if (e.code === "ENOENT") resv(null); else rej(e);
+        else resv(s);
     });
-const buildlogLoader: Promise<string | null> = fs.readFile(buildlogPath, "utf-8")
-    .catch(e => {
-        if (e.code == "ENOENT") return null;
-        throw e;
+});
+const buildlogLoader: Promise<string | null> = new Promise((resv, rej) => {
+    fs.readFile(buildlogPath, "utf-8", (e, s) => {
+        if (e) if (e.code === "ENOENT") resv(null); else rej(e);
+        else resv(s);
     });
+});
 
 type LambdaPayloadCommon = {
     readonly status: string;
