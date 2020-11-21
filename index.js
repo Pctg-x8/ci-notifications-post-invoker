@@ -51,6 +51,8 @@ var core = require("@actions/core");
 var exec_1 = require("@actions/exec");
 var github = require("@actions/github");
 var Lambda = require("aws-sdk/clients/lambda");
+var fs = require("fs/promises");
+var path = require("path");
 function getCommitInfo(head) {
     return __awaiter(this, void 0, void 0, function () {
         var outputStrings, exitCode, _a, committerName, commitMessage;
@@ -86,16 +88,45 @@ var input = {
     headSha: core.getInput("head_sha", { required: false }),
     baseSha: core.getInput("base_sha", { required: false }),
     reportName: core.getInput("report_name"),
-    mode: core.getInput("mode"),
-    supportInfo: core.getInput("support_info", { required: false })
+    mode: core.getInput("mode")
 };
 var _a = github.context.repo, repoOwner = _a.owner, repoName = _a.repo;
+var rawbuildlogPath = path.join(process.env["GITHUB_WORKSPACE"], ".rawbuildlog");
+var buildlogPath = path.join(process.env["GITHUB_WORKSPACE"], ".buildlog");
+var rawbuildlogLoader = fs.readFile(rawbuildlogPath, "utf-8")["catch"](function (e) {
+    if (e.code === "ENOENT")
+        return null;
+    throw e;
+});
+var buildlogLoader = fs.readFile(buildlogPath, "utf-8")["catch"](function (e) {
+    if (e.code == "ENOENT")
+        return null;
+    throw e;
+});
+var BUILDLOG_MAX_AVAILABLE_LINES = 10;
 function run() {
     return __awaiter(this, void 0, void 0, function () {
-        var commonPayload, payload;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
+        var _a, buildlog, rawbuildlog, supportInfo, buildlogLines, commonPayload, payload;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0: return [4 /*yield*/, Promise.all([buildlogLoader, rawbuildlogLoader])];
+                case 1:
+                    _a = _b.sent(), buildlog = _a[0], rawbuildlog = _a[1];
+                    supportInfo = "";
+                    if (rawbuildlog !== null)
+                        supportInfo += rawbuildlog;
+                    if (buildlog !== null) {
+                        if (supportInfo.charAt(supportInfo.length - 1) !== '\n')
+                            supportInfo += "\n";
+                        buildlogLines = buildlog.split("\n").filter(function (x) { return x !== ""; });
+                        if (buildlogLines.length > BUILDLOG_MAX_AVAILABLE_LINES) {
+                            // omitted
+                            supportInfo += "```\n...\n" + buildlogLines.slice(buildlogLines.length - BUILDLOG_MAX_AVAILABLE_LINES).join("\n") + "\n```";
+                        }
+                        else {
+                            supportInfo += "```\n" + buildlogLines.join("\n") + "\n```";
+                        }
+                    }
                     commonPayload = {
                         status: input.status,
                         failure_step: input.status == "failure" ? core.getInput("failure_step") : undefined,
@@ -104,18 +135,18 @@ function run() {
                         duration: endTime - input.beginTime,
                         repository: [repoOwner, repoName].join("/"),
                         report_name: input.reportName,
-                        support_info: input.supportInfo
+                        support_info: supportInfo !== "" ? supportInfo : undefined
                     };
-                    if (!(input.mode == "diff")) return [3 /*break*/, 2];
+                    if (!(input.mode == "diff")) return [3 /*break*/, 3];
                     return [4 /*yield*/, getCommitInfo(input.headSha).then(function (cinfo) { return (__assign({ compare_url: "https://github.com/" + repoOwner + "/" + repoName + "/compare/" + input.baseSha + ".." + input.headSha, commit_hash: input.headSha, ref: process.env.GITHUB_HEAD_REF, pr_number: Number(core.getInput("pr_number")), pr_name: core.getInput("pr_title"), commit: cinfo }, commonPayload)); })];
-                case 1:
-                    payload = _a.sent();
-                    return [3 /*break*/, 4];
-                case 2: return [4 /*yield*/, getCommitInfo(github.context.sha).then(function (cinfo) { return (__assign({ branch_name: github.context.ref.replace(/^refs\/heads\//, ""), commit: cinfo }, commonPayload)); })];
-                case 3:
-                    payload = _a.sent();
-                    _a.label = 4;
+                case 2:
+                    payload = _b.sent();
+                    return [3 /*break*/, 5];
+                case 3: return [4 /*yield*/, getCommitInfo(github.context.sha).then(function (cinfo) { return (__assign({ branch_name: github.context.ref.replace(/^refs\/heads\//, ""), commit: cinfo }, commonPayload)); })];
                 case 4:
+                    payload = _b.sent();
+                    _b.label = 5;
+                case 5:
                     new Lambda({ region: process.env.AWS_DEFAULT_REGION }).invoke({
                         FunctionName: "CIResultNotificationGHA",
                         Payload: JSON.stringify(payload),

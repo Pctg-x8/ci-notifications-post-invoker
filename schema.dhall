@@ -26,7 +26,6 @@ let Params =
     , begintime : Text
     , report_name : Text
     , mode : Mode
-    , support_info : Optional Text
     }
 let ExecEnv =
     { AWS_ACCESS_KEY_ID : Text
@@ -39,7 +38,6 @@ let mkParams = \(params : Params) ->
     in status # mode # Map/unpackOptionals Text Text (toMap {
         , begintime = Some params.begintime
         , report_name = Some params.report_name
-        , support_info = params.support_info
         })
 let step = \(params: Params) -> \(env: ExecEnv) -> GithubActions.Step::{
     , name = "Notify"

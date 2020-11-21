@@ -28,9 +28,6 @@ inputs:
     report_name:
         description: Name of Reporter
         required: true
-    support_info:
-        description: Support Info Markdown(applied to details attachment)
-        required: false
 runs:
     using: node12
     main: index.js

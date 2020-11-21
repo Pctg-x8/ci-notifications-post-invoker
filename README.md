@@ -28,3 +28,8 @@ AWS IAM User Access Key ID
 AWS IAM User Access Secret Key
 ### AWS_DEFAULT_REGION
 AWS Default Region to run Function
+
+## Input Files
+
+### .rawbuildlog | .buildlog
+added into support_info (.buildlog will be added as code block)

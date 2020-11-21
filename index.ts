@@ -2,6 +2,9 @@ import * as core from "@actions/core";
 import { exec } from "@actions/exec";
 import * as github from "@actions/github";
 import * as Lambda from "aws-sdk/clients/lambda";
+import * as fs from "fs/promises";
+import { constants } from "fs";
+import * as path from "path";
 
 type CommitInfo = {
     readonly committer: string;
@@ -35,10 +38,21 @@ const input = {
     headSha: core.getInput("head_sha", { required: false }),
     baseSha: core.getInput("base_sha", { required: false }),
     reportName: core.getInput("report_name"),
-    mode: core.getInput("mode"),
-    supportInfo: core.getInput("support_info", { required: false })
+    mode: core.getInput("mode")
 };
 const { owner: repoOwner, repo: repoName } = github.context.repo;
+const rawbuildlogPath = path.join(process.env["GITHUB_WORKSPACE"], ".rawbuildlog");
+const buildlogPath = path.join(process.env["GITHUB_WORKSPACE"], ".buildlog");
+const rawbuildlogLoader: Promise<string | null> = fs.readFile(rawbuildlogPath, "utf-8")
+    .catch(e => {
+        if (e.code === "ENOENT") return null;
+        throw e;
+    });
+const buildlogLoader: Promise<string | null> = fs.readFile(buildlogPath, "utf-8")
+    .catch(e => {
+        if (e.code == "ENOENT") return null;
+        throw e;
+    });
 
 type LambdaPayloadCommon = {
     readonly status: string;
@@ -63,7 +77,23 @@ type LambdaPayloadBranch = {
 } & LambdaPayloadCommon;
 type LambdaPayload = LambdaPayloadDiff | LambdaPayloadBranch;
 
+const BUILDLOG_MAX_AVAILABLE_LINES = 10;
+
 async function run() {
+    const [buildlog, rawbuildlog] = await Promise.all([buildlogLoader, rawbuildlogLoader]);
+    let supportInfo = "";
+    if (rawbuildlog !== null) supportInfo += rawbuildlog;
+    if (buildlog !== null) {
+        if (supportInfo.charAt(supportInfo.length - 1) !== '\n') supportInfo += "\n";
+        const buildlogLines = buildlog.split("\n").filter(x => x !== "");
+        if (buildlogLines.length > BUILDLOG_MAX_AVAILABLE_LINES) {
+            // omitted
+            supportInfo += "```\n...\n" + buildlogLines.slice(buildlogLines.length - BUILDLOG_MAX_AVAILABLE_LINES).join("\n") + "\n```";
+        } else {
+            supportInfo += "```\n" + buildlogLines.join("\n") + "\n```";
+        }
+    }
+
     const commonPayload: Omit<LambdaPayloadCommon, "commit"> = {
         status: input.status,
         failure_step: input.status == "failure" ? core.getInput("failure_step") : undefined,
@@ -72,7 +102,7 @@ async function run() {
         duration: endTime - input.beginTime,
         repository: [repoOwner, repoName].join("/"),
         report_name: input.reportName,
-        support_info: input.supportInfo
+        support_info: supportInfo !== "" ? supportInfo : undefined
     };
 
     let payload: LambdaPayload;
