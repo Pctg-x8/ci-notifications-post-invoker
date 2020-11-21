@@ -1,5 +1,5 @@
 let GithubActions = https://raw.githubusercontent.com/Pctg-x8/gha-schemas/master/schema.dhall
-let Map/unpackOptionals = https://prelude.dhall-lang.org/Map/unpackOptionals
+let Map/unpackOptionals = https://prelude.dhall-lang.org/Map/unpackOptionals.dhall
 
 let Status = < Success | Failure : Text >
 let decomposeStatus =
@@ -36,7 +36,7 @@ let ExecEnv =
 let mkParams = \(params : Params) ->
     let status = decomposeStatus params.status
     let mode = decomposeMode params.mode
-    in status # mode # support_info # unpackOptionals Text Text (toMap {
+    in status # mode # Map/unpackOptionals Text Text (toMap {
         , begintime = Some params.begintime
         , report_name = Some params.report_name
         , support_info = params.support_info
