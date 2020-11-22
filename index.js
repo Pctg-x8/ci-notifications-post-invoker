@@ -115,7 +115,7 @@ var buildlogLoader = new Promise(function (resv, rej) {
             resv(s);
     });
 });
-var BUILDLOG_MAX_AVAILABLE_LINES = 10;
+var BUILDLOG_MAX_AVAILABLE_LINES = 15;
 function run() {
     return __awaiter(this, void 0, void 0, function () {
         var _a, buildlog, rawbuildlog, supportInfo, buildlogLines, commonPayload, payload;
