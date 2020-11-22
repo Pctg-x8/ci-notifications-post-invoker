@@ -78,7 +78,7 @@ type LambdaPayloadBranch = {
 } & LambdaPayloadCommon;
 type LambdaPayload = LambdaPayloadDiff | LambdaPayloadBranch;
 
-const BUILDLOG_MAX_AVAILABLE_LINES = 10;
+const BUILDLOG_MAX_AVAILABLE_LINES = 15;
 
 async function run() {
     const [buildlog, rawbuildlog] = await Promise.all([buildlogLoader, rawbuildlogLoader]);
