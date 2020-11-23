@@ -86,13 +86,14 @@ async function run() {
     if (rawbuildlog !== null) supportInfo += rawbuildlog;
     if (buildlog !== null) {
         if (supportInfo.charAt(supportInfo.length - 1) !== '\n') supportInfo += "\n";
-        const buildlogLines = buildlog.split("\n").filter(x => x !== "");
-        if (buildlogLines.length > BUILDLOG_MAX_AVAILABLE_LINES) {
-            // omitted
-            supportInfo += "```\n...\n" + buildlogLines.slice(buildlogLines.length - BUILDLOG_MAX_AVAILABLE_LINES).join("\n") + "\n```";
-        } else {
-            supportInfo += "```\n" + buildlogLines.join("\n") + "\n```";
-        }
+        const buildlogLines = buildlog.split("\n");
+        if (buildlogLines[buildlogLines.length - 1] === "") buildlogLines.pop();
+        const omitted = buildlogLines.length > BUILDLOG_MAX_AVAILABLE_LINES;
+        let targetLines = buildlogLines.slice(Math.max(buildlogLines.length - BUILDLOG_MAX_AVAILABLE_LINES, 0))
+            .map(l => l.replace(/\r$/, ""));
+        if (omitted) targetLines = ["...", ...targetLines];
+
+        supportInfo += "```\n" + targetLines.join("\n") + "\n```";
     }
 
     const commonPayload: Omit<LambdaPayloadCommon, "commit"> = {

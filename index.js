@@ -46,6 +46,13 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __spreadArrays = (this && this.__spreadArrays) || function () {
+    for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
+    for (var r = Array(s), k = 0, i = 0; i < il; i++)
+        for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
+            r[k] = a[j];
+    return r;
+};
 exports.__esModule = true;
 var core = require("@actions/core");
 var exec_1 = require("@actions/exec");
@@ -118,7 +125,7 @@ var buildlogLoader = new Promise(function (resv, rej) {
 var BUILDLOG_MAX_AVAILABLE_LINES = 15;
 function run() {
     return __awaiter(this, void 0, void 0, function () {
-        var _a, buildlog, rawbuildlog, supportInfo, buildlogLines, commonPayload, payload;
+        var _a, buildlog, rawbuildlog, supportInfo, buildlogLines, omitted, targetLines, commonPayload, payload;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0: return [4 /*yield*/, Promise.all([buildlogLoader, rawbuildlogLoader])];
@@ -130,14 +137,15 @@ function run() {
                     if (buildlog !== null) {
                         if (supportInfo.charAt(supportInfo.length - 1) !== '\n')
                             supportInfo += "\n";
-                        buildlogLines = buildlog.split("\n").filter(function (x) { return x !== ""; });
-                        if (buildlogLines.length > BUILDLOG_MAX_AVAILABLE_LINES) {
-                            // omitted
-                            supportInfo += "```\n...\n" + buildlogLines.slice(buildlogLines.length - BUILDLOG_MAX_AVAILABLE_LINES).join("\n") + "\n```";
-                        }
-                        else {
-                            supportInfo += "```\n" + buildlogLines.join("\n") + "\n```";
-                        }
+                        buildlogLines = buildlog.split("\n");
+                        if (buildlogLines[buildlogLines.length - 1] === "")
+                            buildlogLines.pop();
+                        omitted = buildlogLines.length > BUILDLOG_MAX_AVAILABLE_LINES;
+                        targetLines = buildlogLines.slice(Math.max(buildlogLines.length - BUILDLOG_MAX_AVAILABLE_LINES, 0))
+                            .map(function (l) { return l.replace(/\r$/, ""); });
+                        if (omitted)
+                            targetLines = __spreadArrays(["..."], targetLines);
+                        supportInfo += "```\n" + targetLines.join("\n") + "\n```";
                     }
                     commonPayload = {
                         status: input.status,
