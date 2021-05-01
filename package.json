@@ -2,7 +2,7 @@
   "name": "ci-notifications-post-invoker",
   "version": "1.0.0",
   "description": "CI Notification Post-to-Slack function Invoker",
-  "main": "index.ts",
+  "main": "dist/index.js",
   "repository": "https://github.com/Pctg-x8/ci-notifications-post-invoker",
   "author": "S.Percentage <Syn.Tri.Naga@gmail.com>",
   "license": "MIT",
@@ -17,6 +17,6 @@
     "aws-sdk": "^2.787.0"
   },
   "scripts": {
-    "build": "yarn tsc index.ts"
+    "build": "spago bundle-app && ncc build index.js -o dist -m"
   }
 }
