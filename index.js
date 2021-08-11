@@ -3553,9 +3553,9 @@ var PS = {};
                   return function() {
                       var service = new Lambda({ region: process.env.AWS_DEFAULT_REGION });
                       var invokeParams = {
-                          FunctionName: name,
-                          Payload: payload,
-                          InvocationType: "event"
+                          functionName: name,
+                          payload: payload,
+                          invocationType: "Event"
                       };
 
                       service.invoke(invokeParams, function(e, data) {
