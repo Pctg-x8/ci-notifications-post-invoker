@@ -9,9 +9,9 @@ exports.invokeEventNative = function(name) {
                 return function() {
                     var service = new Lambda({ region: process.env.AWS_DEFAULT_REGION });
                     var invokeParams = {
-                        functionName: name,
-                        payload: payload,
-                        invocationType: "Event"
+                        FunctionName: name,
+                        Payload: payload,
+                        InvocationType: "Event"
                     };
 
                     service.invoke(invokeParams, function(e, data) {
