@@ -85,13 +85,14 @@ constructDiffPayload common = do
     , commit
     }
 
+mapTo :: forall f a b. Functor f => f a -> (a -> b) -> f b
+mapTo = flip map
+
 constructBranchPayload :: Record Lambda.CommonPayload -> Aff Lambda.Payload
-constructBranchPayload common = do
-  commit <- getCommitInfo Context.sha
-  pure $ Lambda.Branch $ Record.merge common
-    { branch_name: Regex.replace (unsafeRegex "^refs/heads/" RegexFlags.noFlags) "" Context.ref
-    , commit
-    }
+constructBranchPayload common = getCommitInfo Context.sha `mapTo` \commit -> Lambda.Branch $ Record.merge common
+  { branch_name: Regex.replace (unsafeRegex "^refs/heads/" RegexFlags.noFlags) "" Context.ref
+  , commit
+  }
 
 constructBuildLogLines :: String -> Aff (Maybe String)
 constructBuildLogLines workspacePath = do
