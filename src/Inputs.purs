@@ -55,6 +55,6 @@ mode = Core.getRequiredInput "mode" >>= case _ of
 prNumber :: Effect Int
 prNumber = (fromString <$> Core.getRequiredInput "pr_number") >>= maybe (throw "invalid pr_number") pure
 
-prName :: Effect String
-prName = Core.getRequiredInput "pr_name"
+prTitle :: Effect String
+prTitle = Core.getRequiredInput "pr_title"
 

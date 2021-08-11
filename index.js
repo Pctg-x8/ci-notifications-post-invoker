@@ -3497,8 +3497,8 @@ var PS = {};
   };
   var status = Actions_Core.getRequiredInput("status");
   var reportName = Actions_Core.getRequiredInput("report_name");
+  var prTitle = Actions_Core.getRequiredInput("pr_title");
   var prNumber = Control_Bind.bind(Effect.bindEffect)(Data_Functor.map(Effect.functorEffect)(Data_Int.fromString)(Actions_Core.getRequiredInput("pr_number")))(Data_Maybe.maybe(Effect_Exception["throw"]("invalid pr_number"))(Control_Applicative.pure(Effect.applicativeEffect)));
-  var prName = Actions_Core.getRequiredInput("pr_name");
   var mode = function __do() {
       var v = Actions_Core.getRequiredInput("mode")();
       if (v === "diff") {
@@ -3539,7 +3539,7 @@ var PS = {};
   exports["Branch"] = Branch;
   exports["mode"] = mode;
   exports["prNumber"] = prNumber;
-  exports["prName"] = prName;
+  exports["prTitle"] = prTitle;
 })(PS);
 (function(exports) {
   "use strict";
@@ -4387,7 +4387,7 @@ var PS = {};
       return Control_Bind.bind(Effect_Aff.bindAff)(Effect_Class.liftEffect(Effect_Aff.monadEffectAff)(Inputs.headSha))(function (headSha) {
           return Control_Bind.bind(Effect_Aff.bindAff)(Effect_Class.liftEffect(Effect_Aff.monadEffectAff)(Inputs.baseSha))(function (baseSha) {
               return Control_Bind.bind(Effect_Aff.bindAff)(Effect_Class.liftEffect(Effect_Aff.monadEffectAff)(Inputs.prNumber))(function (pr_number) {
-                  return Control_Bind.bind(Effect_Aff.bindAff)(Effect_Class.liftEffect(Effect_Aff.monadEffectAff)(Inputs.prName))(function (pr_name) {
+                  return Control_Bind.bind(Effect_Aff.bindAff)(Effect_Class.liftEffect(Effect_Aff.monadEffectAff)(Inputs.prTitle))(function (pr_name) {
                       return Control_Bind.bind(Effect_Aff.bindAff)(Data_Functor.map(Effect_Aff.functorAff)(Data_Maybe.fromJust())(Effect_Class.liftEffect(Effect_Aff.monadEffectAff)(Actions_Core.headRef)))(function (ref) {
                           return Control_Bind.bind(Effect_Aff.bindAff)(getCommitInfo(headSha))(function (commit) {
                               return Control_Applicative.pure(Effect_Aff.applicativeAff)(Lambda.Diff.create(Record.merge()()(common)({

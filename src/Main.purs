@@ -73,7 +73,7 @@ constructDiffPayload common = do
   headSha <- liftEffect Input.headSha
   baseSha <- liftEffect Input.baseSha
   pr_number <- liftEffect Input.prNumber
-  pr_name <- liftEffect Input.prName
+  pr_name <- liftEffect Input.prTitle
   ref <- unsafePartial fromJust <$> liftEffect Core.headRef
   commit <- getCommitInfo headSha
   pure $ Lambda.Diff $ Record.merge common
