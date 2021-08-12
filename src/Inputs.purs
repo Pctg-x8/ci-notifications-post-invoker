@@ -8,7 +8,7 @@ import Data.Int (fromString)
 import Data.Maybe (maybe)
 import Data.Newtype (unwrap, wrap)
 import Data.Number as Number
-import Data.Time.Duration (Milliseconds)
+import Data.Time.Duration (Milliseconds, Seconds, convertDuration, negateDuration)
 import Effect (Effect)
 import Effect.Exception (throw)
 import Effect.Now (now)
@@ -16,16 +16,16 @@ import Effect.Now (now)
 endTime :: Effect Milliseconds
 endTime = unInstant <$> now
 
-beginTime :: Effect Milliseconds
+beginTime :: Effect Seconds
 beginTime = do
   value <- Number.fromString <$> Core.getRequiredInput "begintime"
   maybe (throw $ "begintime is not valid integer value") (pure <<< wrap) value
 
-duration :: Effect Number
+duration :: Effect Seconds
 duration = ado
-  begin <- unwrap <$> beginTime
-  end <- unwrap <$> endTime
-in end - begin
+  begin <- beginTime
+  end <- convertDuration <$> endTime
+in end <> negateDuration begin
 
 status :: Effect String
 status = Core.getRequiredInput "status"

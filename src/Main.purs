@@ -10,6 +10,7 @@ import Data.Array (dropEnd, fold, intercalate, last, length, takeEnd)
 import Data.Array as Array
 import Data.Either (Either(..))
 import Data.Maybe (Maybe(..), fromJust, fromMaybe, maybe)
+import Data.Newtype (unwrap)
 import Data.String (Pattern(..), split)
 import Data.String as String
 import Data.String.Regex as Regex
@@ -113,8 +114,6 @@ constructBuildLogLines workspacePath = do
 
 main :: Effect Unit
 main = launchAff_ $ do
-  liftEffect (((show >>> ("begin: " <> _)) <$> Input.beginTime) >>= Console.log)
-  liftEffect (((show >>> ("end: " <> _)) <$> Input.endTime) >>= Console.log)
   duration <- liftEffect Input.duration
   status <- liftEffect Input.status
   failureStep <- if not $ Input.succeeded status
@@ -129,7 +128,7 @@ main = launchAff_ $ do
       , failure_step: failureStep
       , build_url: buildRunsUrl Context.runId
       , number: Context.runNumber
-      , duration
+      , duration: unwrap duration
       , repository: repoPath
       , report_name: reportName
       , support_info: supportInfo
