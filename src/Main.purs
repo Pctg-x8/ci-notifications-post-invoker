@@ -113,6 +113,8 @@ constructBuildLogLines workspacePath = do
 
 main :: Effect Unit
 main = launchAff_ $ do
+  liftEffect (((show >>> ("begin: " <> _)) <$> Input.beginTime) >>= Console.log)
+  liftEffect (((show >>> ("end: " <> _)) <$> Input.endTime) >>= Console.log)
   duration <- liftEffect Input.duration
   status <- liftEffect Input.status
   failureStep <- if not $ Input.succeeded status
