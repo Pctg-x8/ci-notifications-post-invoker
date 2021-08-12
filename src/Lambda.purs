@@ -20,7 +20,7 @@ type CommonPayload =
   , failure_step :: Maybe String
   , build_url :: String
   , number :: Int
-  , duration :: Number
+  , duration :: Int
   , repository :: String
   , report_name :: String
   , support_info :: Maybe String

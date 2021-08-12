@@ -11,6 +11,7 @@ import Data.Array as Array
 import Data.Either (Either(..))
 import Data.Maybe (Maybe(..), fromJust, fromMaybe, maybe)
 import Data.Newtype (unwrap)
+import Data.Int (round)
 import Data.String (Pattern(..), split)
 import Data.String as String
 import Data.String.Regex as Regex
@@ -128,7 +129,7 @@ main = launchAff_ $ do
       , failure_step: failureStep
       , build_url: buildRunsUrl Context.runId
       , number: Context.runNumber
-      , duration: unwrap duration
+      , duration: round $ unwrap duration
       , repository: repoPath
       , report_name: reportName
       , support_info: supportInfo
