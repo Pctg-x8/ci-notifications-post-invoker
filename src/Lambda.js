@@ -1,15 +1,18 @@
 "use strict";
 
 const { Lambda } = require("@aws-sdk/client-lambda");
-const CredentialProviders = require("@aws-sdk/credential-providers");
+const { fromTokenFile } = require("@aws-sdk/credential-providers");
 
 exports.invokeEventNative = function(name) {
     return function(payload) {
         return function(failureCallback) {
             return function(successCallback) {
                 return function() {
+                    var credentials = fromTokenFile();
+                    credentials().then(c => console.log(c.accessKeyId));
                     var service = new Lambda({
-                        credentials: CredentialProviders.fromTokenFile()
+                        region: process.env.AWS_DEFAULT_REGION,
+                        credentials
                     });
                     var invokeParams = {
                         FunctionName: name,
