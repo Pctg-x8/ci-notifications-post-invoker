@@ -9,7 +9,6 @@ exports.invokeEventNative = function(name) {
             return function(successCallback) {
                 return function() {
                     var service = new Lambda({
-                        region: process.env.AWS_DEFAULT_REGION,
                         credentials: CredentialProviders.fromTokenFile()
                     });
                     var invokeParams = {
