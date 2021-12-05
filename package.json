@@ -16,7 +16,8 @@
     "@actions/core": "^1.2.6",
     "@actions/exec": "^1.0.4",
     "@actions/github": "^4.0.0",
-    "aws-sdk": "^2.787.0"
+    "@aws-sdk/client-lambda": "^3.43.0",
+    "@aws-sdk/credential-providers": "^3.43.0"
   },
   "scripts": {
     "build": "spago bundle-app && ncc build index.js -o dist -m"
